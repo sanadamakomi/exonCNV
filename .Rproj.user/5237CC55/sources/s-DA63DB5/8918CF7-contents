@@ -1,0 +1,6 @@
+roxygen2::roxygenize(package.dir = ".")
+devtools::check()
+devtools::build(manual = TRUE)
+devtools::install()
+
+

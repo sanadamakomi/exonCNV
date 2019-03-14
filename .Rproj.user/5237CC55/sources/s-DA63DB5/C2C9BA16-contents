@@ -1,0 +1,36 @@
+Package: exonCNV
+Version: 0.1.0
+Date: 2019-03-14
+Type: Package
+Title: exonCNV: A tool for calling Exon CNVs(Copy number variations)
+Author: Zhan-Ni Chen
+Maintainer: Zhan-Ni Chen <sanadamakomi@gmail.com>
+Depends: R (>= 3.4.0)
+Imports: 
+    utils,
+    methods,
+    stats, 
+    S4Vectors, 
+    IRanges, 
+    GenomicRanges, 
+    Biostrings, 
+    GenomeInfoDb,
+    Rsamtools,
+    GenomicAlignments, 
+    ggplot2,
+    stringr,
+    reshape2,
+    data.table,
+    devtools 
+Suggests: 
+    roxygen2,
+    knitr
+Description: Fast calling CNVs in exons by several samples by 
+   read depth data from Next-generation Sequencing. Read depth 
+   is poisson among biology replicated in a pool, so region than
+   significantly outlier of poisson model is a likely CNV region.
+License: Artistic-2.0
+Encoding: UTF-8
+URL: https://github.com/sanadamakomi/exonCNV
+BugReports: https://github.com/sanadamakomi/exonCNV/issues
+RoxygenNote: 6.1.1
