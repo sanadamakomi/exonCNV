@@ -155,7 +155,7 @@ batchMergeDefault <- function(covFiles, metricsFile, outPath, defaultDir, defaul
     update.test.dat <- rbind(test.dat, add.default.dat)
     write.table(update.test.dat, file = normalizePath(metricsFile), row.names = FALSE, col.names = TRUE,
                 quote = FALSE, sep = "\t")
-    batchMerge(covFiles = paste(c(covFiles,add.covFiles), collapse = ','), outPath = outPath)
+    do <- batchMerge(covFiles = paste(c(covFiles,add.covFiles), collapse = ','), outPath = outPath)
 
     write(paste0("Write to path: \n", normalizePath(outPath)), stdout())
 }
