@@ -164,6 +164,16 @@ countTR <- function(x) {
 #' @author Zhan-Ni Chen
 callGenderByCov <- function (x) {
     gr <- readCovFile(x)
+    sry <- grep('^SRY\\(', gr$id, perl = TRUE)
+    if (length(sry) > 0) {
+        sry_depth <- gr[sry]$depth
+        sry_depth <- mean(sry_depth, na.rm = TRUE)
+        if (sry_depth >= 10) {
+            return('Male')
+        } else {
+            return('Female')        
+        }
+    }    
     seqn <- as.character(as.vector(runValue(seqnames(gr))))
     sexn <- lapply(c('X', 'Y'), function(x) {seqn[grep(x, seqn)]})
     sexn <- unlist(sexn)
