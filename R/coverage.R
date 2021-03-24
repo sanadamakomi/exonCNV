@@ -108,7 +108,7 @@ performCreateCovFile <- function(bamFiles, bedFile, outDir = NULL, thread = 1, b
 #' @author Zhan-Ni Chen
 #' ####### Calculate depth of coverage in a given region #######
 depthOfRegion <- function(region, bamPath, mapq.filter = 30) {
-    region_lst <- split(region, seqnames(region))
+    region_lst <- split(region, seq(1, length(region), 1))
     out_lst <- lapply(region_lst, function(sub_region) {
         what <- c("mapq", "flag")
         flag <- scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE, isDuplicate = FALSE)
