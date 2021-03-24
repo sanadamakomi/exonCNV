@@ -4,8 +4,13 @@
 \alias{batchCall}
 \title{Call exon CNV.}
 \usage{
-batchCall(probFile, mergedCovFile, outDir, sampleId, cutoff = list(prob =
-  1e-04, pool.count = 1, baseline = 50, lowdepth = 10))
+batchCall(
+  probFile,
+  mergedCovFile,
+  outDir,
+  sampleId,
+  cutoff = list(prob = 1e-04, pool.count = 1, baseline = 50, lowdepth = 10)
+)
 }
 \arguments{
 \item{probFile}{Path of probability file.}

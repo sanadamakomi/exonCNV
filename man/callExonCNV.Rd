@@ -4,9 +4,13 @@
 \alias{callExonCNV}
 \title{Call exon CNVs.}
 \usage{
-callExonCNV(probFile, mergedCovFile, path = NULL, sample.id = NULL,
-  cutoff = list(prob = 1e-04, pool.count = 1, baseline = 50, lowdepth =
-  10))
+callExonCNV(
+  probFile,
+  mergedCovFile,
+  path = NULL,
+  sample.id = NULL,
+  cutoff = list(prob = 1e-04, pool.count = 1, baseline = 50, lowdepth = 10)
+)
 }
 \arguments{
 \item{probFile}{Path of probability file.}

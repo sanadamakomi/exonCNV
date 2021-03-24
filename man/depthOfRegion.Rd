@@ -7,8 +7,14 @@
 \usage{
 depthOfRegion(region, bamPath, mapq.filter = 30)
 
-depthOfRegionMultiCore(region, bamPath, thread, batch, mapq.filter = 30,
-  tmpDir = NULL)
+depthOfRegionMultiCore(
+  region,
+  bamPath,
+  thread,
+  batch,
+  mapq.filter = 30,
+  tmpDir = NULL
+)
 }
 \arguments{
 \item{region}{a GenomicRanges object.}

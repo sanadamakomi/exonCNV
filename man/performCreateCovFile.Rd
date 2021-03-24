@@ -4,8 +4,14 @@
 \alias{performCreateCovFile}
 \title{Perform calculating depth of coverage.}
 \usage{
-performCreateCovFile(bamFiles, bedFile, outDir = NULL, thread = 1,
-  batch = 1000, mapq.filter = 30)
+performCreateCovFile(
+  bamFiles,
+  bedFile,
+  outDir = NULL,
+  thread = 1,
+  batch = 1000,
+  mapq.filter = 30
+)
 }
 \arguments{
 \item{bamFiles}{A character string or vector of the BAM files path.}

@@ -108,17 +108,23 @@ performCreateCovFile <- function(bamFiles, bedFile, outDir = NULL, thread = 1, b
 #' @author Zhan-Ni Chen
 #' ####### Calculate depth of coverage in a given region #######
 depthOfRegion <- function(region, bamPath, mapq.filter = 30) {
-    what <- c("mapq", "flag")
-    flag <- scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE, isDuplicate = FALSE)
-    param <- ScanBamParam(which = region, what = what, flag = flag, mapqFilter = mapq.filter)
-    inBam <- readGAlignments(file = bamPath, index = bamPath, param = param)
-    binCov <- coverage(IRanges(start = start(inBam), width = width(inBam)))
-    binCovView <- Views(binCov, start = start(region), width = width(region))
-    totalCov <- viewSums(binCovView, na.rm = TRUE)
-    depth <- round(totalCov/width(region), 0)
-    bamseqinfo <- seqinfo(BamFile(bamPath))
-    GRanges(Rle(seqnames(region)), IRanges(start = start(region) , end = end(region)),
-            seqinfo = bamseqinfo, depth = depth, id = mcols(region)$id)
+    region_lst <- split(region, seqnames(region))
+    out_lst <- lapply(region_lst, function(sub_region) {
+        what <- c("mapq", "flag")
+        flag <- scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE, isDuplicate = FALSE)
+        param <- ScanBamParam(which = sub_region, what = what, flag = flag, mapqFilter = mapq.filter)
+        inBam <- readGAlignments(file = bamPath, index = bamPath, param = param)
+        binCov <- coverage(IRanges(start = start(inBam), width = width(inBam)))
+        binCovView <- Views(binCov, start = start(sub_region), width = width(sub_region))
+        totalCov <- viewSums(binCovView, na.rm = TRUE)
+        depth <- round(totalCov/width(sub_region), 0)
+        bamseqinfo <- seqinfo(BamFile(bamPath))
+        GRanges(Rle(seqnames(sub_region)), IRanges(start = start(sub_region) , end = end(sub_region)),
+                seqinfo = bamseqinfo, depth = depth, id = mcols(sub_region)$id)
+    })
+    out_grlst <- as(out_lst, "GRangesList")
+    out_gr <- unlist(out_grlst)
+    return(out_gr)
 }
 
 #' @rdname depthOfRegion

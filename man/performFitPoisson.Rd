@@ -4,8 +4,7 @@
 \alias{performFitPoisson}
 \title{Fit data}
 \usage{
-performFitPoisson(mergedCovFile, parameterFile, path = NULL,
-  lowdepth = 10)
+performFitPoisson(mergedCovFile, parameterFile, path = NULL, lowdepth = 10)
 }
 \arguments{
 \item{mergedCovFile}{Path of merged coverage file.}

@@ -4,8 +4,15 @@
 \alias{batchMergeDefault}
 \title{Calculate metrics.}
 \usage{
-batchMergeDefault(covFiles, metricsFile, outPath, defaultDir,
-  defaultCovFiles, defaultMetricsFile, genderNum)
+batchMergeDefault(
+  covFiles,
+  metricsFile,
+  outPath,
+  defaultDir,
+  defaultCovFiles,
+  defaultMetricsFile,
+  genderNum
+)
 }
 \arguments{
 \item{covFiles}{A character string of coverage file paths seperated by

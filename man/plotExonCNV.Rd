@@ -4,8 +4,14 @@
 \alias{plotExonCNV}
 \title{Plot the unifomity of coverage among samples.}
 \usage{
-plotExonCNV(geneCNVFile, mergedCovFile, parameterFile, gene = NULL,
-  path = NULL, draw = 10)
+plotExonCNV(
+  geneCNVFile,
+  mergedCovFile,
+  parameterFile,
+  gene = NULL,
+  path = NULL,
+  draw = 10
+)
 }
 \arguments{
 \item{geneCNVFile}{Path of gene cnv result file.}
