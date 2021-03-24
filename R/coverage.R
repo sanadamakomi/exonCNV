@@ -124,6 +124,7 @@ depthOfRegion <- function(region, bamPath, mapq.filter = 30) {
     })
     out_grlst <- as(out_lst, "GRangesList")
     out_gr <- unlist(out_grlst)
+    names(out_gr) <- NULL
     return(out_gr)
 }
 
