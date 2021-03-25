@@ -108,33 +108,47 @@ performCreateCovFile <- function(bamFiles, bedFile, outDir = NULL, thread = 1, b
 #' @author Zhan-Ni Chen
 #' ####### Calculate depth of coverage in a given region #######
 depthOfRegion <- function(region, bamPath, mapq.filter = 30) {
-    mcols(region)$index_id <- seq(1, length(region), 1)
-    region_lst <- split(region, seqnames(region))
-    out_lst <- lapply(region_lst, function(sub_region) {
+    if (length(unique(seqnames(region))) == 1) {
         what <- c("mapq", "flag")
         flag <- scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE, isDuplicate = FALSE)
-        param <- ScanBamParam(which = reduce(sub_region), what = what, flag = flag, mapqFilter = mapq.filter)
+        param <- ScanBamParam(which = reduce(region), what = what, flag = flag, mapqFilter = mapq.filter)
         inBam <- readGAlignments(file = bamPath, index = bamPath, param = param)
         binCov <- coverage(IRanges(start = start(inBam), width = width(inBam)))
-        binCovView <- Views(binCov, start = start(sub_region), width = width(sub_region))
+        binCovView <- Views(binCov, start = start(region), width = width(region))
         totalCov <- viewSums(binCovView, na.rm = TRUE)
-        depth <- round(totalCov/width(sub_region), 0)
+        depth <- round(totalCov/width(region), 0)
         bamseqinfo <- seqinfo(BamFile(bamPath))
-        GRanges(Rle(seqnames(sub_region)), IRanges(start = start(sub_region) , end = end(sub_region)),
-                seqinfo = bamseqinfo, depth = depth, id = mcols(sub_region)$id, index_id=mcols(sub_region)$index_id)
-    })
-    out_grlst <- as(out_lst, "GRangesList")
-    out_gr <- unlist(out_grlst)
-    names(out_gr) <- NULL
-    out_dr_1 <- out_gr[order(mcols(out_gr)$index_id)]
-    out_gr <-
+        return(GRanges(Rle(seqnames(region)), IRanges(start = start(region) , end = end(region)),
+                seqinfo = bamseqinfo, depth = depth, id = mcols(region)$id))
+    } else {
+        mcols(region)$index_id <- seq(1, length(region), 1)
+        region_lst <- split(region, seqnames(region))
+        out_lst <- lapply(region_lst, function(sub_region) {
+            what <- c("mapq", "flag")
+            flag <- scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE, isDuplicate = FALSE)
+            param <- ScanBamParam(which = reduce(sub_region), what = what, flag = flag, mapqFilter = mapq.filter)
+            inBam <- readGAlignments(file = bamPath, index = bamPath, param = param)
+            binCov <- coverage(IRanges(start = start(inBam), width = width(inBam)))
+            binCovView <- Views(binCov, start = start(sub_region), width = width(sub_region))
+            totalCov <- viewSums(binCovView, na.rm = TRUE)
+            depth <- round(totalCov/width(sub_region), 0)
+            bamseqinfo <- seqinfo(BamFile(bamPath))
+            GRanges(Rle(seqnames(sub_region)), IRanges(start = start(sub_region) , end = end(sub_region)),
+                    seqinfo = bamseqinfo, depth = depth, id = mcols(sub_region)$id, index_id=mcols(sub_region)$index_id)
+        })
+        out_grlst <- as(out_lst, "GRangesList")
+        out_gr <- unlist(out_grlst)
+        names(out_gr) <- NULL
+        out_dr_1 <- out_gr[order(mcols(out_gr)$index_id)]
+        out_gr <-
 
-        GRanges(Rle(seqnames(out_dr_1)), IRanges(start = start(out_dr_1),
-                                                 end = end(out_dr_1)),
-                seqinfo = seqinfo(out_dr_1),
-                depth = mcols(out_dr_1)$depth,
-                id = mcols(out_dr_1)$id)
-    return(out_gr)
+            GRanges(Rle(seqnames(out_dr_1)), IRanges(start = start(out_dr_1),
+                                                     end = end(out_dr_1)),
+                    seqinfo = seqinfo(out_dr_1),
+                    depth = mcols(out_dr_1)$depth,
+                    id = mcols(out_dr_1)$id)
+        return(out_gr)
+    }
 }
 
 #' @rdname depthOfRegion
