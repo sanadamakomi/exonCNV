@@ -94,7 +94,7 @@ makeVcfMatrix <- function(x) {
     if(! "gq" %in% names(x)) {
         x$gq <- rep('.', nrow(x))
     }
-    FORMAT <- makeVcfFormat(x[, c("gt", "gq", "cn")])
+    FORMAT <- makeVcfFormat(x[, c("gt", "gq", "cn"), drop=FALSE])
     cbind(CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, rep("GT:GQ:CN", nrow(x)), FORMAT)
 }
 
@@ -129,8 +129,9 @@ makeVcfInfo <- function(x) {
     n_row <- nrow(x)
     col_n <- colnames(x)
     x <- apply(x, 2, function(y) { gsub(" ", "", as.character(as.vector(y))) })
+    x <- matrix(data=x, ncol=n_col)
     sapply(1:nrow(x), function(i) {
-        paste(paste0(toupper(col_n), "=", as.character(as.vector(x[i,]))), collapse=";")
+        paste(paste0(toupper(col_n), "=", as.character(as.vector(x[i,,drop=FALSE]))), collapse=";")
     })
 }
 
@@ -139,8 +140,9 @@ makeVcfFormat <- function(x) {
     n_row <- nrow(x)
     col_n <- colnames(x)
     x <- apply(x, 2, function(y) { gsub(" ", "", as.character(as.vector(y))) })
+    x <- matrix(data=x, ncol=n_col)
     sapply(1:nrow(x), function(i) {
-        paste(as.character(as.vector(x[i,])), collapse=":")
+        paste(as.character(as.vector(x[i,,drop=FALSE])), collapse=":")
     })
 }
 
