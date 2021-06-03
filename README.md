@@ -48,3 +48,5 @@ It's a TAB-delimited text file which has two columns without header.
 2019.3.27 Debug callGenderByCov(): Use "SRY" gene to call gender.
 
 2021.3.24 Debug depthOfRegion(): Calculate coverage by chromosome.
+
+2021.6.3  Debug outputVcf(): Optimize output file.
