@@ -210,7 +210,7 @@ filterExonCNV <- function(x, cutoff = list(prob = 1E-4, pool.count = 3, baseline
     })
 
     result <- do.call('rbind', result)
-    result[which(as.numeric(as.vector(result[,'pool.count'])) <= cutoff$pool.count),,drop = FALSE]
+    result[which(as.numeric(as.vector(result[,'pool.count'])) <= cutoff$pool.count | as.numeric(as.vector(result[,'cn'])) == 0),,drop = FALSE]
 }
 
 doPois <- function(depth, ...){
