@@ -211,19 +211,17 @@ mergerCovFiles <- function(x, path = NULL) {
     write('Start to merge coverage files...', stdout())
 
     coverageMatrix <- NULL
-    for (i in x[1:2]) {
+    for (i in x) {
         id <- getID(i)
         indat <- read.table(i, header = FALSE, sep = "\t", quote = "", comment.char = "#",
                             na.strings = "NA", fill = TRUE, stringsAsFactors = FALSE)
         colnames(indat) <- c("chr", "start", "end", 'id', id)
-        print(head(indat))
         indat2 <- data.table(indat, key = "id")
         if (is.null(coverageMatrix)) {
             coverageMatrix <- indat
         } else {
-            coverageMatrix <- merge(coverageMatrix, indat[,c('id', id)], by = "id", all=TRUE)
+            coverageMatrix <- merge(coverageMatrix, indat[,c('id', id)], by = "id")
         }
-        print("ok")
     }
     coverageMatrix$chr <- factor(coverageMatrix$chr,
                                  levels = c(as.character(seq(1, 22, 1)), 'X', 'Y'))
