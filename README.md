@@ -50,3 +50,6 @@ It's a TAB-delimited text file which has two columns without header.
 2021.3.24 Debug depthOfRegion(): Calculate coverage by chromosome.
 
 2021.6.3  Debug outputVcf(): Optimize output file.
+
+2022.3.30  Debug filterExonCNV(): Filter cn = 0.
+

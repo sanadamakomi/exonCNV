@@ -211,7 +211,7 @@ mergerCovFiles <- function(x, path = NULL) {
     write('Start to merge coverage files...', stdout())
 
     coverageMatrix <- NULL
-    for (i in x[1:2]) {
+    for (i in x) {
         id <- getID(i)
         indat <- read.table(i, header = FALSE, sep = "\t", quote = "", comment.char = "#",
                             na.strings = "NA", fill = TRUE, stringsAsFactors = FALSE)
