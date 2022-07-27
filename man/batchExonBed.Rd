@@ -4,7 +4,7 @@
 \alias{batchExonBed}
 \title{Export exon bed file.}
 \usage{
-batchExonBed(annoFile, outPath, gene)
+batchExonBed(annoFile, outPath, gene, expand)
 }
 \arguments{
 \item{annoFile}{Path of annotation file.}
@@ -13,6 +13,9 @@ batchExonBed(annoFile, outPath, gene)
 
 \item{gene}{A character string of gene symbols seperated by comma(,) to
 export.}
+
+\item{expand}{An integer. If an exon's size is less than this value, its
+region will be expanded centrally to a width of this value.}
 }
 \description{
 Export exon bed file.

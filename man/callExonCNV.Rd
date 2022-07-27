@@ -9,6 +9,7 @@ callExonCNV(
   mergedCovFile,
   path = NULL,
   sample.id = NULL,
+  gene.name = NULL,
   cutoff = list(prob = 1e-04, pool.count = 1, baseline = 50, lowdepth = 10)
 )
 }
@@ -21,6 +22,8 @@ callExonCNV(
 
 \item{sample.id}{Sample ids to call CNV. By default it will run in all
 samples.}
+
+\item{gene.name}{A vector of gene symbols to call CNV.}
 
 \item{cutoff}{A list of cutoff parameters to filter exon CNV, 'prob' is
 probability, 'pool.count' is the least counts of sample of which gene has

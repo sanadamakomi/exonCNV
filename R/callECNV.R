@@ -64,6 +64,7 @@ performFitPoisson <- function(mergedCovFile, parameterFile, path = NULL, lowdept
 #' @param path Directory path to write to.
 #' @param sample.id Sample ids to call CNV. By default it will run in all
 #'   samples.
+#' @param gene.name A vector of gene symbols to call CNV.
 #' @param cutoff A list of cutoff parameters to filter exon CNV, 'prob' is
 #'   probability, 'pool.count' is the least counts of sample of which gene has
 #'   CNV. 'baseline' is the least baseline depth to call CNV. 'lowdepth' is
@@ -75,7 +76,7 @@ performFitPoisson <- function(mergedCovFile, parameterFile, path = NULL, lowdept
 #' @importFrom stats dpois
 #' @importFrom stats nlm
 #' @author Zhan-Ni Chen
-callExonCNV <- function(probFile, mergedCovFile, path = NULL, sample.id = NULL, cutoff = list(prob = 1E-4, pool.count = 1, baseline = 50, lowdepth = 10)) {
+callExonCNV <- function(probFile, mergedCovFile, path = NULL, sample.id = NULL, gene.name=NULL, cutoff = list(prob = 1E-4, pool.count = 1, baseline = 50, lowdepth = 10)) {
     if (! file.exists(probFile)) stop(paste0(probFile, 'no exists.'))
     if (! file.exists(mergedCovFile)) stop(paste0(mergedCovFile, 'no exists.'))
     if (is.null(path)) path <- '.'
@@ -91,6 +92,11 @@ callExonCNV <- function(probFile, mergedCovFile, path = NULL, sample.id = NULL, 
     depth.dat <- read.table(mergedCovFile, header = TRUE, sep = "\t", quote = "",
                             comment.char = "#", na.strings = "NA",
                         fill = TRUE, stringsAsFactors = FALSE)
+    infos <- str_match(dat[,'id'], "^(.+)\\((.+?)\\)_([0-9]+)_[0-9]+$")
+    if (! is.null(gene.name)) {
+        dat <- dat[which(infos[,2] %in% gene.name),,drop=FALSE]
+        depth.dat <- depth.dat[which(infos[,2] %in% gene.name),,drop=FALSE]
+    }
     all.id <- setdiff(colnames(dat), c('chr', 'start', 'end', 'id'))
     if (is.null(sample.id)) {
         sample.id <- all.id

@@ -18,13 +18,15 @@ batchFilterTrans <- function(annoFile, outPath, transIdxFile, bedFile) {
 #' @param outPath Path to write to.
 #' @param gene A character string of gene symbols seperated by comma(,) to
 #'   export.
+#' @param expand An integer. If an exon's size is less than this value, its
+#'   region will be expanded centrally to a width of this value.
 #' @export
-batchExonBed <- function(annoFile, outPath, gene) {
+batchExonBed <- function(annoFile, outPath, gene, expand) {
     if (is.null(annoFile)) stop('Input --annoFile')
     if (! file.exists(annoFile)) stop(paste0('File no exists:', annoFile))
     if (is.null(outPath)) stop('Input --outPath')
     if (! is.null(gene)) gene <- unlist(strsplit(gene, ','))
-    do <- exonToBed(file = annoFile, path = outPath, gene = gene)
+    do <- exonToBed(file = annoFile, path = outPath, gene = gene, expand=expand)
 }
 
 #' @title Calulate depth.
@@ -184,22 +186,25 @@ batchFit <- function(mergedCovFile, metricsFile, outPath, lowDepth) {
 #' @param mergedCovFile Path of merged coverage file.
 #' @param outDir Path of directory to write to.
 #' @param sampleId Sample ids to call CNV, seperated by comma(,).
+#' @param geneName Gene symbols to call CNV, seperated by comma(,).
 #' @param cutoff A list of cutoff parameters to filter exon CNV, 'prob' is
 #'   probability, 'pool.count' is the least counts of sample of which gene has
 #'   CNV. 'baseline' is the least baseline depth to call CNV. 'lowdepth' is
 #'   least depth in all samples to call CNV.
 #' @export
-batchCall <- function(probFile, mergedCovFile, outDir, sampleId, cutoff = list(prob = 1E-4, pool.count = 1, baseline = 50, lowdepth = 10)) {
+batchCall <- function(probFile, mergedCovFile, outDir, sampleId, geneName=NULL, cutoff = list(prob = 1E-4, pool.count = 1, baseline = 50, lowdepth = 10)) {
     if (is.null(probFile)) stop('Input --probFile')
     if (is.null(mergedCovFile)) stop('Input --mergedCovFile')
     if (is.null(sampleId)) write('Default calling all samples.', stdout())
     if (! file.exists(probFile)) stop(paste0('File no exists: ', probFile))
     if (! file.exists(mergedCovFile)) stop(paste0('File no exists: ', mergedCovFile))
     if (! is.null(sampleId)) sampleId <- unlist(strsplit(sampleId, ','))
+    if (! is.null(geneName)) geneName <- unlist(strsplit(geneName, ','))
     do <- callExonCNV(probFile = probFile,
                       mergedCovFile = mergedCovFile,
                       path = outDir,
                       sample.id = sampleId,
+                      gene.name = geneName,
                       cutoff = cutoff)
 }
 

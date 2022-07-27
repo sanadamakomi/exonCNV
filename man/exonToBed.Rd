@@ -4,7 +4,7 @@
 \alias{exonToBed}
 \title{Bed of exon positions.}
 \usage{
-exonToBed(file, path = NULL, gene = NULL)
+exonToBed(file, path = NULL, gene = NULL, expand = -1)
 }
 \arguments{
 \item{file}{A character string of the annotation file's path.}
@@ -12,6 +12,9 @@ exonToBed(file, path = NULL, gene = NULL)
 \item{path}{A character string of the file path to write to.}
 
 \item{gene}{A character string or vector of gene symbols to export.}
+
+\item{expand}{An integer. If an exon's size is less than this value, its
+region will be expanded centrally to a width of this value.}
 }
 \description{
 Extract exon informations from the annotation tabular file and

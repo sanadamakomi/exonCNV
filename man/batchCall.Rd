@@ -9,6 +9,7 @@ batchCall(
   mergedCovFile,
   outDir,
   sampleId,
+  geneName = NULL,
   cutoff = list(prob = 1e-04, pool.count = 1, baseline = 50, lowdepth = 10)
 )
 }
@@ -20,6 +21,8 @@ batchCall(
 \item{outDir}{Path of directory to write to.}
 
 \item{sampleId}{Sample ids to call CNV, seperated by comma(,).}
+
+\item{geneName}{Gene symbols to call CNV, seperated by comma(,).}
 
 \item{cutoff}{A list of cutoff parameters to filter exon CNV, 'prob' is
 probability, 'pool.count' is the least counts of sample of which gene has

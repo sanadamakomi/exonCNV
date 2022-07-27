@@ -76,10 +76,12 @@ filterTrans <- function(file, path = NULL, bed = NULL, index = NULL) {
 #' @param file A character string of the annotation file's path.
 #' @param path A character string of the file path to write to.
 #' @param gene A character string or vector of gene symbols to export.
+#' @param expand An integer. If an exon's size is less than this value, its
+#'   region will be expanded centrally to a width of this value.
 #' @export
 #' @importFrom methods as
 #' @author Zhan-Ni Chen
-exonToBed <- function(file, path = NULL, gene = NULL) {
+exonToBed <- function(file, path = NULL, gene = NULL, expand=-1) {
     if (! file.exists(file)) stop(paste0(file, 'no exists.'))
     if (is.null(path)) path <- paste0(normalizePath('.'), '/exons.bed')
     indat <- readFile(file)
@@ -100,6 +102,16 @@ exonToBed <- function(file, path = NULL, gene = NULL) {
             exon <- seq(1, length(exonS),1)
         }else{
             exon <- seq(length(exonS), 1, -1)
+        }
+
+        if (expand > 0) {
+            r_idx <- which((exonE - exonS) < expand)
+            if (length(r_idx) > 0) {
+                e_size <- round((expand - (exonE[r_idx] - exonS[r_idx]))/2)
+                exonS[r_idx] <- exonS[r_idx] - e_size
+                exonE[r_idx] <- exonE[r_idx] + e_size
+                exonS[which(exonS < 1)] <- 1
+            }
         }
         GRanges(Rle(rep(chr, length(exonS))),
                 ranges = IRanges(start = exonS, end = exonE),
@@ -171,9 +183,9 @@ callGenderByCov <- function (x) {
         if (sry_depth >= 10) {
             return('Male')
         } else {
-            return('Female')        
+            return('Female')
         }
-    }    
+    }
     seqn <- as.character(as.vector(runValue(seqnames(gr))))
     sexn <- lapply(c('X', 'Y'), function(x) {seqn[grep(x, seqn)]})
     sexn <- unlist(sexn)

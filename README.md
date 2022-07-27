@@ -53,3 +53,4 @@ It's a TAB-delimited text file which has two columns without header.
 
 2022.3.30  Debug filterExonCNV(): Filter cn = 0.
 
+2022.7.27  Edit batchCall(): Add parameter geneName to call cnv in genes.
