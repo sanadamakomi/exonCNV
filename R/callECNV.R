@@ -151,17 +151,40 @@ callExonCNV <- function(probFile, mergedCovFile, path = NULL, sample.id = NULL, 
 
         # filter
         gene.df <- filterExonCNV(df, cutoff = cutoff)
-        count1 <- as.numeric(as.vector(gene.df[, ncol(gene.df)]))
-        bad.index <- which(count1 / gene.df$exon.num >= 0.2)
-        gene.df.good <- gene.df[setdiff(1:nrow(gene.df), bad.index),,drop = FALSE]
-        gene.df.bad <- gene.df[bad.index,,drop = FALSE]
-        rank.coefficient <- -log10(gene.df.good$prob) + gene.df.good$exon.sv.num * 2
-        gene.df.good <- gene.df.good[order(rank.coefficient, decreasing = TRUE),,drop = FALSE]
-        write.table(rbind(gene.df.good, gene.df.bad),
-                    file = filter.path, row.names = FALSE,
-                    col.names = TRUE, quote = FALSE, sep = "\t")
+        if (! is.null(gene.df)) {
+            count1 <- as.numeric(as.vector(gene.df[, ncol(gene.df)]))
+            bad.index <- which(count1 / gene.df$exon.num >= 0.2)
+            gene.df.good <- gene.df[setdiff(1:nrow(gene.df), bad.index),,drop = FALSE]
+            gene.df.bad <- gene.df[bad.index,,drop = FALSE]
+            rank.coefficient <- -log10(gene.df.good$prob) + gene.df.good$exon.sv.num * 2
+            gene.df.good <- gene.df.good[order(rank.coefficient, decreasing = TRUE),,drop = FALSE]
+            write.table(rbind(gene.df.good, gene.df.bad),
+                        file = filter.path, row.names = FALSE,
+                        col.names = TRUE, quote = FALSE, sep = "\t")
 
-        write(paste0('Write to path:\n', normalizePath(filter.path)), stdout())
+            write(paste0('Write to path:\n', normalizePath(filter.path)), stdout())
+        } else {
+            write.table(data.frame(
+                chr=NA,
+                start=NA,
+                end=NA,
+                gene=NA,
+                trans=NA,
+                exon.num=NA,
+                exon.sv.id=NA,
+                exon.sv.num=NA,
+                svtype=NA,
+                cn=NA,
+                prob=NA,
+                depth=NA,
+                baseline=NA,
+                pool.count=NA,
+                past.count=NA,
+                exon.low.num=NA
+            ),
+                file = filter.path, row.names = FALSE,
+                col.names = TRUE, quote = FALSE, sep = "\t")
+        }
     })
 }
 
@@ -171,52 +194,56 @@ filterExonCNV <- function(x, cutoff = list(prob = 1E-4, pool.count = 3, baseline
     filter.x <- x[which(as.numeric(as.vector(x[,'prob'])) < cutoff$prob &
       as.numeric(as.vector(x[,'baseline'])) >= cutoff$baseline ),, drop = FALSE]
 
-    # merge exons sharing the same gene symbol
-    filter.gene <- unique(as.character(as.vector(filter.x[,'gene'])))
-    result <- lapply(filter.gene, function(gene) {
-        idx <- which(as.character(as.vector(x[,'gene'])) %in% gene)
-        gene.whole.dat <- x[idx,,drop = FALSE]
-        count1 <- length(which(as.numeric(as.vector(gene.whole.dat[,'prob'])) == 1))
-        gene.dat <- gene.whole.dat[which(gene.whole.dat[,'svtype'] %in% c('DEL', 'DUP')),,drop = FALSE]
+    if (nrow(filter.x) > 0) {
+        # merge exons sharing the same gene symbol
+        filter.gene <- unique(as.character(as.vector(filter.x[,'gene'])))
+        result <- lapply(filter.gene, function(gene) {
+            idx <- which(as.character(as.vector(x[,'gene'])) %in% gene)
+            gene.whole.dat <- x[idx,,drop = FALSE]
+            count1 <- length(which(as.numeric(as.vector(gene.whole.dat[,'prob'])) == 1))
+            gene.dat <- gene.whole.dat[which(gene.whole.dat[,'svtype'] %in% c('DEL', 'DUP')),,drop = FALSE]
 
-        # call by sv type
-        svtype.class <- unique(as.character(as.vector(gene.dat[,'svtype'])))
-        out.dat <- list()
+            # call by sv type
+            svtype.class <- unique(as.character(as.vector(gene.dat[,'svtype'])))
+            out.dat <- list()
 
-        for (sv in svtype.class) {
-            sub.dat <- gene.dat[which(as.character(as.vector(gene.dat[,'svtype'])) %in% sv),,drop = FALSE]
-            exon.sv.id <- continuousInteger(sort(as.numeric(as.vector(sub.dat[, 'exon']))))
-            past.count <- na.omit(as.numeric(as.vector(sub.dat[, 'past.count'])))
-            if (length(past.count) > 0) {
-                past.count <- min(past.count)
-            } else {
-                past.count <- NA
+            for (sv in svtype.class) {
+                sub.dat <- gene.dat[which(as.character(as.vector(gene.dat[,'svtype'])) %in% sv),,drop = FALSE]
+                exon.sv.id <- continuousInteger(sort(as.numeric(as.vector(sub.dat[, 'exon']))))
+                past.count <- na.omit(as.numeric(as.vector(sub.dat[, 'past.count'])))
+                if (length(past.count) > 0) {
+                    past.count <- min(past.count)
+                } else {
+                    past.count <- NA
+                }
+                out.dat[[sv]] <- data.frame(chr=sub.dat[1, 'chr'],
+                    start=min(as.numeric(as.vector(sub.dat[, 'start']))),
+                    end=max(as.numeric(as.vector(sub.dat[, 'end']))),
+                    gene=gene,
+                    trans=sub.dat[1, 'transcript'],
+                    exon.num=sub.dat[1, 'exon.num'],
+                    exon.sv.id=paste(exon.sv.id, collapse = ','),
+                    exon.sv.num=nrow(sub.dat),
+                    svtype=sv,
+                    cn=median(as.numeric(as.vector(sub.dat[, 'cn'])), na.rm = TRUE),
+                    prob=min(as.numeric(as.vector(sub.dat[, 'prob'])), na.rm = TRUE),
+                    depth=median(as.numeric(as.vector(sub.dat[, 'depth'])), na.rm = TRUE),
+                    baseline=median(as.numeric(as.vector(sub.dat[, 'baseline'])), na.rm = TRUE),
+                    pool.count=min(as.numeric(as.vector(sub.dat[, 'pool.count'])), na.rm = TRUE),
+                    past.count=past.count,
+                    exon.low.num=count1)
             }
-            out.dat[[sv]] <- data.frame(chr=sub.dat[1, 'chr'],
-                start=min(as.numeric(as.vector(sub.dat[, 'start']))),
-                end=max(as.numeric(as.vector(sub.dat[, 'end']))),
-                gene=gene,
-                trans=sub.dat[1, 'transcript'],
-                exon.num=sub.dat[1, 'exon.num'],
-                exon.sv.id=paste(exon.sv.id, collapse = ','),
-                exon.sv.num=nrow(sub.dat),
-                svtype=sv,
-                cn=median(as.numeric(as.vector(sub.dat[, 'cn'])), na.rm = TRUE),
-                prob=min(as.numeric(as.vector(sub.dat[, 'prob'])), na.rm = TRUE),
-                depth=median(as.numeric(as.vector(sub.dat[, 'depth'])), na.rm = TRUE),
-                baseline=median(as.numeric(as.vector(sub.dat[, 'baseline'])), na.rm = TRUE),
-                pool.count=min(as.numeric(as.vector(sub.dat[, 'pool.count'])), na.rm = TRUE),
-                past.count=past.count,
-                exon.low.num=count1)
-        }
 
-        out.dat <- do.call('rbind', out.dat)
-        rownames(out.dat) <- NULL
-        out.dat
-    })
+            out.dat <- do.call('rbind', out.dat)
+            rownames(out.dat) <- NULL
+            out.dat
+        })
 
-    result <- do.call('rbind', result)
-    result[which(as.numeric(as.vector(result[,'pool.count'])) <= cutoff$pool.count | as.numeric(as.vector(result[,'cn'])) == 0),,drop = FALSE]
+        result <- do.call('rbind', result)
+        return(result[which(as.numeric(as.vector(result[,'pool.count'])) <= cutoff$pool.count | as.numeric(as.vector(result[,'cn'])) == 0),,drop = FALSE])
+    } else {
+        return(NULL)
+    }
 }
 
 doPois <- function(depth, ...){
@@ -236,7 +263,7 @@ continuousInteger <- function(x) {
 }
 
 revContinuousInteger <- function(x) {
-    s <- unlist(strsplit(x, ','))
+    s <- unlist(strsplit(as.character(x), ','))
     out <- c()
     for (i in s){
         if (grepl('~', i)) {
